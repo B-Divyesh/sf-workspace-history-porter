@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -42,10 +43,18 @@ async function openOptionsAfterInstall(page, optionsUrl) {
   throw lastError || new Error(`Could not open extension options at ${optionsUrl}.`);
 }
 
+async function assertNoSeriousA11yViolations(page, state) {
+  const results = await new AxeBuilder({ page }).analyze();
+  const blocking = results.violations.filter((issue) => ['serious', 'critical'].includes(issue.impact || ''));
+  if (blocking.length) throw new Error(`${state} extension accessibility violations: ${blocking.map(({ id }) => id).join(', ')}`);
+}
+
 try {
   context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
     headless: true,
+    offline: true,
+    reducedMotion: 'reduce',
     args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
   });
   const errors = [];
@@ -62,8 +71,19 @@ try {
 
   await openOptionsAfterInstall(page, optionsUrl);
   if (await page.locator('h1').count() !== 1 || await page.locator('main').count() !== 1) throw new Error('Extension shell is missing semantic landmarks.');
+  await assertNoSeriousA11yViolations(page, 'Locked');
+  await page.evaluate(() => {
+    document.body.tabIndex = -1;
+    document.body.focus();
+  });
+  await page.keyboard.press('Tab');
+  const firstFocus = await page.evaluate(() => ({
+    href: document.activeElement?.getAttribute('href'),
+    outline: document.activeElement ? getComputedStyle(document.activeElement).outlineStyle : 'none'
+  }));
+  if (firstFocus.href !== '#main' || firstFocus.outline === 'none') throw new Error(`Extension skip link is not the first visible keyboard focus: ${JSON.stringify(firstFocus)}`);
   await page.fill('#passphrase', 'test passphrase 123');
-  await page.click('#unlock-form button[type=submit]');
+  await page.press('#passphrase', 'Enter');
   await page.waitForSelector('#journal-view:not([hidden])');
   await page.click('#new-workspace-button');
   await page.fill('#workspace-name', 'Remote API');
@@ -71,10 +91,11 @@ try {
   await page.click('#workspace-form button[type=submit]');
   await page.click('#add-entry-button');
   await page.fill('#entry-title', 'Run integration tests');
-  await page.click('#entry-form button[type=submit]');
+  await page.press('#entry-title', 'Enter');
   await page.waitForSelector('.journal-card');
   const entry = await page.locator('.journal-card h3').textContent();
   if (entry !== 'Run integration tests') throw new Error('Journal entry was not saved and rendered.');
+  await assertNoSeriousA11yViolations(page, 'Unlocked');
   if (errors.length) throw new Error(`Extension console errors: ${errors.join('; ')}`);
   process.stdout.write('Extension smoke test passed: unlock → workspace → journal entry; no console errors.\n');
 } finally {
