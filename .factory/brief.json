@@ -1,0 +1,11 @@
+{
+  "slug": "workspace-history-porter",
+  "title": "Workspace History Porter",
+  "territory": "devtools-data",
+  "user": "People moving between browsers and remote development workspaces who need their task/session index and handoff notes to follow the workspace without making chat history a vendor lock-in.",
+  "smallest_useful_product": "A browser extension plus local sidecar that stores an encrypted workspace journal, bookmarks terminal/PR/test URLs, and exports an interoperable handoff file.",
+  "success_measure": "At least 75% of pilot users recover a prior workspace task list from a second browser in under one minute.",
+  "artifact_class": "browser-extension",
+  "monetization": "freemium",
+  "constraints": "User-controlled encryption keys; no page-content collection by default; explicit per-origin permissions; support export without a cloud account."
+}

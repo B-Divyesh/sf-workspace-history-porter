@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Workspace History Porter mark</title>
+  <desc id="desc">A luggage tag crossed by a glowing route line</desc>
+  <path d="M13 8h29l9 9v39H13z" fill="#0c1b18" stroke="#f5f0de" stroke-width="3"/>
+  <path d="M42 8v10h9" fill="none" stroke="#f5f0de" stroke-width="3"/>
+  <path d="M7 41c12 0 14-15 25-15s10 16 25 16" fill="none" stroke="#64f4d5" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="32" cy="26" r="4" fill="#ffb84d" stroke="#07110f" stroke-width="2"/>
+  <path d="M24 49h16" stroke="#ff6b5d" stroke-width="4" stroke-linecap="round"/>
+</svg>
