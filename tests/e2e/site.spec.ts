@@ -28,3 +28,17 @@ test('packaged extension and sidecar are downloadable', async ({ request }) => {
   expect(sidecar.ok()).toBe(true);
   expect((await extension.body()).byteLength).toBeGreaterThan(50_000);
 });
+
+test('390 px product links meet the 44 px touch-target baseline', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'This regression is specific to the required 390 px layout.');
+  await page.goto('/');
+  const targets = page.locator('.site-header nav a:visible, .format-grid article > a:visible, .legal-links a:visible, footer nav a:visible');
+  expect(await targets.count()).toBeGreaterThan(0);
+  for (const target of await targets.all()) {
+    const box = await target.boundingBox();
+    const label = (await target.textContent())?.trim();
+    expect(box, `${label} should be rendered`).not.toBeNull();
+    expect(box!.width, `${label} target width`).toBeGreaterThanOrEqual(44);
+    expect(box!.height, `${label} target height`).toBeGreaterThanOrEqual(44);
+  }
+});

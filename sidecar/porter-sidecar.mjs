@@ -4,6 +4,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 
+const SIDECAR_VERSION = '1.0.1';
+const BUILD_COMMIT = 'development';
+
 const args = process.argv.slice(2);
 const rootIndex = args.indexOf('--root');
 const portIndex = args.indexOf('--port');
@@ -69,7 +72,15 @@ const server = createServer(async (request, response) => {
     response.writeHead(204);
     return response.end();
   }
-  if (request.url === '/health' && request.method === 'GET') return json(response, 200, { ok: true, root });
+  if (request.url === '/health' && request.method === 'GET') {
+    return json(response, 200, {
+      ok: true,
+      service: 'workspace-history-porter-sidecar',
+      version: SIDECAR_VERSION,
+      commit: BUILD_COMMIT,
+      root
+    });
+  }
   if (request.url !== '/journal') return json(response, 404, { error: 'Not found.' });
 
   if (request.method === 'GET') {

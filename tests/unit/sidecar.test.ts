@@ -23,6 +23,16 @@ describe('local workspace sidecar', () => {
         if (String(chunk).includes('Listening')) { clearTimeout(timer); resolve(); }
       });
     });
+    const health = await fetch(`http://127.0.0.1:${port}/health`);
+    expect(health.status).toBe(200);
+    expect(health.headers.get('cache-control')).toBe('no-store');
+    expect(await health.json()).toEqual({
+      ok: true,
+      service: 'workspace-history-porter-sidecar',
+      version: '1.0.1',
+      commit: 'development',
+      root: temporaryRoot
+    });
     const payload = { format: 'workspace-history-porter/handoff', version: 1, ciphertext: 'opaque', encryption: {}, exportedAt: 'now' };
     const extensionOrigin = 'chrome-extension://porterregressiontest';
     const put = await fetch(`http://127.0.0.1:${port}/journal`, {

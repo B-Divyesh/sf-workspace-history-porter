@@ -95,9 +95,43 @@ try {
   await page.waitForSelector('.journal-card');
   const entry = await page.locator('.journal-card h3').textContent();
   if (entry !== 'Run integration tests') throw new Error('Journal entry was not saved and rendered.');
+
+  await page.selectOption('.status-select', 'done');
+  await page.waitForFunction(() => document.querySelector('#workspace-summary')?.textContent?.startsWith('0 open · 1 total'));
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const transferButton = page.locator('#transfer-button');
+  if (!await transferButton.isVisible()) throw new Error('Transfer is not reachable at the required 390 px viewport.');
+  const transferBox = await transferButton.boundingBox();
+  if (!transferBox || transferBox.height < 44) throw new Error(`Mobile transfer target is below 44 px: ${JSON.stringify(transferBox)}`);
+  await transferButton.click();
+  await page.waitForSelector('#transfer-dialog[open]');
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.click('#export-button');
+  const download = await downloadPromise;
+  const handoffPath = join(userDataDir, 'mobile-transfer-handoff.json');
+  await download.saveAs(handoffPath);
+  await page.click('#transfer-dialog [data-close]');
+
+  await page.click('#add-entry-button');
+  await page.fill('#entry-title', 'Temporary local task');
+  await page.press('#entry-title', 'Enter');
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 2);
+
+  await transferButton.click();
+  page.once('dialog', (dialog) => dialog.accept('REPLACE'));
+  await page.setInputFiles('#import-file', handoffPath);
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 1);
+  if (await page.locator('.journal-card h3').textContent() !== 'Run integration tests') {
+    throw new Error('Mobile encrypted export/import did not restore the exported journal.');
+  }
+  if (!await page.locator('#transfer-status').textContent().then((value) => value?.includes('1 workspace imported'))) {
+    throw new Error('Mobile encrypted import did not report its result.');
+  }
   await assertNoSeriousA11yViolations(page, 'Unlocked');
   if (errors.length) throw new Error(`Extension console errors: ${errors.join('; ')}`);
-  process.stdout.write('Extension smoke test passed: unlock → workspace → journal entry; no console errors.\n');
+  process.stdout.write('Extension smoke passed: journal, live status summary, and 390 px encrypted export/import; no console errors.\n');
 } finally {
   await context?.close();
   await rm(userDataDir, { recursive: true, force: true });

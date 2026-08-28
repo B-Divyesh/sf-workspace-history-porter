@@ -136,6 +136,7 @@ function renderEntries() {
       const updated = { ...entry, status: select.value as EntryStatus, updatedAt: new Date().toISOString() };
       vault = upsertWorkspace(vault, upsertEntry(workspace, updated));
       await persist('Status updated.');
+      render();
     });
     const remove = document.createElement('button');
     remove.type = 'button';

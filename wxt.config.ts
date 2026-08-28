@@ -5,7 +5,7 @@ export default defineConfig({
   manifest: {
     name: 'Workspace History Porter',
     description: 'Carry an encrypted workspace task index between browsers.',
-    version: '1.0.0',
+    version: '1.0.1',
     permissions: ['storage', 'activeTab', 'permissions'],
     optional_host_permissions: ['http://*/*', 'https://*/*'],
     host_permissions: ['http://127.0.0.1:43821/*', 'https://pilot-api.sociobot.in/*'],
