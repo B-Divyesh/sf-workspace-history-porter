@@ -7,7 +7,24 @@ const userDataDir = await mkdtemp(join(tmpdir(), 'porter-extension-'));
 const extensionPath = resolve('.output/chrome-mv3');
 let context;
 
+async function waitForExtensionId(browserContext) {
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    const extensionUrl = [
+      ...browserContext.serviceWorkers().map((worker) => worker.url()),
+      ...browserContext.pages().map((page) => page.url())
+    ].find((url) => url.startsWith('chrome-extension://'));
+    if (extensionUrl) return new URL(extensionUrl).host;
+    await new Promise((resolveWait) => setTimeout(resolveWait, 100));
+  }
+  throw new Error('Extension did not expose an options page or service worker within 30 seconds.');
+}
+
 async function openOptionsAfterInstall(page, optionsUrl) {
+  if (page.url().startsWith(optionsUrl)) {
+    await page.waitForLoadState('domcontentloaded');
+    return;
+  }
   let lastError;
   // Chromium may still be honoring runtime.openOptionsPage() from onInstalled
   // when this fresh-profile smoke test opens its own tab. Let that internal
@@ -31,14 +48,19 @@ try {
     headless: true,
     args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`]
   });
-  const worker = context.serviceWorkers()[0] || await context.waitForEvent('serviceworker', { timeout: 10_000 });
-  const extensionId = new URL(worker.url()).host;
-  const page = await context.newPage();
   const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  const monitorPage = (candidate) => {
+    candidate.on('pageerror', (error) => errors.push(error.message));
+    candidate.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  };
+  context.pages().forEach(monitorPage);
+  context.on('page', monitorPage);
 
-  await openOptionsAfterInstall(page, `chrome-extension://${extensionId}/options.html`);
+  const extensionId = await waitForExtensionId(context);
+  const optionsUrl = `chrome-extension://${extensionId}/options.html`;
+  const page = context.pages().find((candidate) => candidate.url().startsWith(optionsUrl)) || await context.newPage();
+
+  await openOptionsAfterInstall(page, optionsUrl);
   if (await page.locator('h1').count() !== 1 || await page.locator('main').count() !== 1) throw new Error('Extension shell is missing semantic landmarks.');
   await page.fill('#passphrase', 'test passphrase 123');
   await page.click('#unlock-form button[type=submit]');

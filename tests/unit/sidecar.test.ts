@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -39,5 +39,22 @@ describe('local workspace sidecar', () => {
     expect(rejected.status).toBe(403);
     const originless = await fetch(`http://127.0.0.1:${port}/journal`);
     expect(originless.status).toBe(403);
+
+    const concurrentPayloads = Array.from({ length: 20 }, (_, index) => ({
+      ...payload,
+      ciphertext: `parallel-${index}`
+    }));
+    const concurrentWrites = await Promise.all(concurrentPayloads.map((body) => fetch(`http://127.0.0.1:${port}/journal`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json', origin: extensionOrigin },
+      body: JSON.stringify(body)
+    })));
+    expect(concurrentWrites.map(({ status }) => status)).toEqual(Array(20).fill(200));
+
+    const finalPath = join(temporaryRoot, '.workspace-history-porter/handoff.json');
+    const finalHandoff = JSON.parse(await readFile(finalPath, 'utf8'));
+    expect(concurrentPayloads).toContainEqual(finalHandoff);
+    expect((await stat(finalPath)).mode & 0o777).toBe(0o600);
+    expect(await readdir(join(temporaryRoot, '.workspace-history-porter'))).toEqual(['handoff.json']);
   });
 });

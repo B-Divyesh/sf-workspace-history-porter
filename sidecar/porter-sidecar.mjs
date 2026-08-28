@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createServer } from 'node:http';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 
 const args = process.argv.slice(2);
@@ -20,8 +21,8 @@ if (!Number.isInteger(port) || port < 1024 || port > 65535) {
 
 const dataDir = join(root, '.workspace-history-porter');
 const handoffPath = join(dataDir, 'handoff.json');
-const temporaryPath = join(dataDir, 'handoff.tmp');
 const allowedOrigin = /^(chrome|moz)-extension:\/\/[a-z0-9-]+$/i;
+let replacementQueue = Promise.resolve();
 
 function hasExtensionOrigin(request) {
   return typeof request.headers.origin === 'string' && allowedOrigin.test(request.headers.origin);
@@ -82,15 +83,21 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === 'PUT') {
+    let temporaryPath;
     try {
       const body = JSON.parse(await readBody(request));
       if (body?.format !== 'workspace-history-porter/handoff' || body?.version !== 1 || typeof body?.ciphertext !== 'string') {
         return json(response, 400, { error: 'Expected an encrypted Porter handoff.' });
       }
+      temporaryPath = join(dataDir, `handoff.${process.pid}.${randomUUID()}.tmp`);
       await writeFile(temporaryPath, `${JSON.stringify(body, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
-      await rename(temporaryPath, handoffPath);
+      const replacement = replacementQueue.then(() => rename(temporaryPath, handoffPath));
+      // A failed replacement must not poison the queue for later valid writes.
+      replacementQueue = replacement.catch(() => {});
+      await replacement;
       return json(response, 200, { ok: true, path: handoffPath });
     } catch (error) {
+      if (temporaryPath) await unlink(temporaryPath).catch(() => {});
       return json(response, 400, { error: error instanceof Error ? error.message : 'Could not write the handoff.' });
     }
   }
