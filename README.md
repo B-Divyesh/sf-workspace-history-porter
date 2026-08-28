@@ -90,11 +90,10 @@ malware, a compromised extension runtime, or someone who knows the passphrase.
 
 ## Paid unlock
 
-Team Relay is a $29 one-time license sold through the Sociobot billing engine.
-During staging, checkout and verification use `pilot-api.sociobot.in`; the
-factory changes the base at release. License verdicts are cached for at most one
-day and a prior valid verdict keeps the feature available offline. Free journal
-use and all data exports never wait on billing.
+Team Relay is a $29 one-time license sold through the production Sociobot
+billing engine. License verdicts are cached for at most one day and a prior
+valid verdict keeps the feature available offline. Free journal use and all
+data exports never wait on billing.
 
 ## Project notes
 

@@ -14,11 +14,19 @@ for (const path of ['/', '/privacy/', '/terms/']) {
 }
 
 test('license callback is stored and stripped without blocking the page', async ({ page }) => {
-  await page.route('https://pilot-api.sociobot.in/**', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"valid":true,"reason":"ok","expires_at":null}' }));
+  await page.route('https://api.sociobot.in/**', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"valid":true,"reason":"ok","expires_at":null}' }));
   await page.goto('/?license=test-license#team');
   await expect(page).toHaveURL(/\/#team$/);
   expect(await page.evaluate(() => localStorage.getItem('sb_license:workspace-history-porter'))).toBe('test-license');
   await expect(page.locator('#license-status')).toContainText('active');
+});
+
+test('checkout uses only the production Sociobot billing endpoint', async ({ page }) => {
+  await page.goto('/#team');
+  await expect(page.locator('#buy-link')).toHaveAttribute(
+    'href',
+    'https://api.sociobot.in/api/v1/products/workspace-history-porter/checkout'
+  );
 });
 
 test('packaged extension and sidecar are downloadable', async ({ request }) => {

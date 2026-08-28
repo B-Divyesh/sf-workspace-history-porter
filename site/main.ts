@@ -1,7 +1,7 @@
 import './style.css';
 
 const SLUG = 'workspace-history-porter';
-const BILLING_BASE = import.meta.env.VITE_BILLING_BASE || 'https://pilot-api.sociobot.in';
+const BILLING_BASE = import.meta.env.VITE_BILLING_BASE || 'https://api.sociobot.in';
 const LICENSE_KEY = `sb_license:${SLUG}`;
 const VERDICT_KEY = `sb_license_verdict:${SLUG}`;
 const DAY = 86_400_000;
