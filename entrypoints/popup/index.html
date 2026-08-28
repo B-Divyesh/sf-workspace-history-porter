@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Porter quick add</title>
+    <script type="module" src="./main.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to journal</a>
+    <main id="main" class="popup-shell">
+      <header class="brand-row">
+        <img src="/porter-mark.svg" width="36" height="36" alt="" />
+        <div><span class="eyebrow">Local dispatch</span><h1>Porter</h1></div>
+        <button id="lock-button" class="icon-button" type="button" hidden>Lock</button>
+      </header>
+
+      <section id="locked-view" aria-labelledby="unlock-title">
+        <p class="route-label"><span>01</span> Open your bag</p>
+        <h2 id="unlock-title">Unlock the local journal</h2>
+        <p id="unlock-help" class="muted">Your passphrase stays in this browser session. We cannot recover it.</p>
+        <form id="unlock-form">
+          <label for="passphrase">Passphrase</label>
+          <input id="passphrase" name="passphrase" type="password" minlength="10" autocomplete="current-password" required aria-describedby="unlock-help" />
+          <button class="primary full" type="submit">Unlock journal</button>
+        </form>
+        <p class="micro">New here? Enter a new 10+ character passphrase to create an empty encrypted vault.</p>
+      </section>
+
+      <section id="journal-view" hidden aria-labelledby="workspace-heading">
+        <p class="route-label"><span>02</span> Current stop</p>
+        <h2 id="workspace-heading">Workspace</h2>
+        <p id="current-origin" class="origin mono"></p>
+        <form id="quick-form">
+          <label for="entry-title">What needs to travel?</label>
+          <input id="entry-title" name="title" maxlength="120" required placeholder="Run integration tests" />
+          <div class="row compact">
+            <label class="grow" for="entry-kind">Type
+              <select id="entry-kind" name="kind">
+                <option value="task">Task</option><option value="note">Note</option><option value="link">Link</option>
+              </select>
+            </label>
+            <button id="capture-button" class="secondary capture" type="button">Use this tab</button>
+          </div>
+          <button class="primary full" type="submit">Add stop</button>
+        </form>
+        <div id="recent-region">
+          <div class="section-heading"><h2>Recent</h2><span id="entry-count" class="count">0</span></div>
+          <ul id="recent-list" class="entry-list"></ul>
+          <p id="empty-state" class="empty">No stops yet. Add the first task or bookmark above.</p>
+        </div>
+        <button id="open-journal" class="secondary full" type="button">Open full journal</button>
+      </section>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

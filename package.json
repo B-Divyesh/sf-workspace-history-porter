@@ -1,0 +1,28 @@
+{
+  "name": "workspace-history-porter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:site": "vite --config vite.site.config.ts",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build:extension": "wxt build && wxt zip",
+    "build:site": "vite build --config vite.site.config.ts",
+    "build": "npm run build:extension && npm run build:site && node scripts/package.mjs",
+    "sidecar": "node sidecar/porter-sidecar.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.58.2",
+    "jsdom": "25.0.1",
+    "typescript": "5.7.3",
+    "vite": "6.3.4",
+    "vitest": "2.1.9",
+    "wxt": "0.20.11"
+  },
+  "overrides": {
+    "vite": "$vite"
+  }
+}

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workspace journal — Porter</title>
+    <script type="module" src="./main.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to journal</a>
+    <header class="app-header">
+      <a class="brand" href="https://workspace-history-porter.sociobot.in" target="_blank" rel="noreferrer">
+        <img src="/porter-mark.svg" width="40" height="40" alt="" />
+        <span><strong>Workspace History Porter</strong><small>Encrypted local dispatch</small></span>
+      </a>
+      <div class="header-actions">
+        <span id="connection-pill" class="pill"><span aria-hidden="true">●</span> Local only</span>
+        <button id="lock-button" class="secondary" type="button" hidden>Lock journal</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="locked-view" class="unlock-layout" aria-labelledby="page-title">
+        <div class="unlock-copy">
+          <p class="route-label"><span>01</span> Identify yourself</p>
+          <h1 id="page-title">Your work, packed for the next browser.</h1>
+          <p class="lede">Unlock the encrypted workspace index stored on this device. A new passphrase creates a fresh vault; an existing one opens your journal.</p>
+          <ul class="promise-list">
+            <li><span aria-hidden="true">↳</span> No transcript or page content collection</li>
+            <li><span aria-hidden="true">↳</span> Passphrase never leaves the browser</li>
+            <li><span aria-hidden="true">↳</span> Export works without an account</li>
+          </ul>
+        </div>
+        <form id="unlock-form" class="ticket-panel">
+          <span class="ticket-code">BAG / LOCAL / 001</span>
+          <label for="passphrase">Journal passphrase</label>
+          <input id="passphrase" type="password" minlength="10" autocomplete="current-password" required aria-describedby="passphrase-help" />
+          <p id="passphrase-help" class="muted">At least 10 characters. There is no recovery link by design.</p>
+          <button class="primary" type="submit">Unlock journal</button>
+          <p id="unlock-status" class="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section id="journal-view" class="journal-layout" hidden aria-label="Workspace journal">
+        <aside class="workspace-rail" aria-label="Workspaces">
+          <div class="rail-heading"><p class="eyebrow">Workspace route</p><button id="new-workspace-button" class="small-button" type="button">+ New</button></div>
+          <nav aria-label="Workspace list"><ul id="workspace-list" class="workspace-list"></ul></nav>
+          <div class="rail-footer">
+            <button id="transfer-button" class="secondary full" type="button">Transfer &amp; sidecar</button>
+            <a href="https://workspace-history-porter.sociobot.in/#team" target="_blank" rel="noreferrer">Team handoffs <span aria-hidden="true">↗</span></a>
+          </div>
+        </aside>
+
+        <section class="journal-main" aria-labelledby="workspace-title">
+          <header class="workspace-header">
+            <div>
+              <p id="workspace-origin" class="eyebrow"></p>
+              <h2 id="workspace-title">Choose a workspace</h2>
+              <p id="workspace-summary" class="muted">Create a workspace to start your portable index.</p>
+            </div>
+            <button id="add-entry-button" class="primary" type="button">Add journal entry</button>
+          </header>
+
+          <div id="filter-bar" class="filter-bar" role="group" aria-label="Filter journal">
+            <button class="filter active" type="button" data-filter="all" aria-pressed="true">All</button>
+            <button class="filter" type="button" data-filter="task" aria-pressed="false">Tasks</button>
+            <button class="filter" type="button" data-filter="note" aria-pressed="false">Notes</button>
+            <button class="filter" type="button" data-filter="link" aria-pressed="false">Links</button>
+          </div>
+
+          <ol id="entry-list" class="journal-entries"></ol>
+          <div id="empty-journal" class="empty-journal">
+            <span class="empty-mark" aria-hidden="true">↗</span>
+            <h3>No handoff trail yet</h3>
+            <p>Add the next task, a useful note, or a terminal/PR/test URL. Porter stores only what you enter.</p>
+            <button id="empty-add-button" class="secondary" type="button">Add the first entry</button>
+          </div>
+          <p id="journal-status" class="status floating-status" role="status" aria-live="polite"></p>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="workspace-dialog">
+      <form id="workspace-form" method="dialog" class="dialog-form">
+        <div><p class="eyebrow">Add a route stop</p><h2>New workspace</h2></div>
+        <label for="workspace-name">Workspace name</label>
+        <input id="workspace-name" maxlength="80" required placeholder="Remote API staging" />
+        <label for="workspace-origin-input">Origin or identifier</label>
+        <input id="workspace-origin-input" maxlength="200" placeholder="https://dev.example.com or ssh://host/project" />
+        <div class="dialog-actions"><button class="secondary" value="cancel" type="button" data-close>Cancel</button><button class="primary" value="default" type="submit">Create workspace</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="entry-dialog">
+      <form id="entry-form" method="dialog" class="dialog-form">
+        <div><p class="eyebrow">Pack one useful thing</p><h2>Add journal entry</h2></div>
+        <div class="two-fields">
+          <label for="entry-kind">Type<select id="entry-kind"><option value="task">Task</option><option value="note">Note</option><option value="link">Link</option></select></label>
+          <label for="entry-status">Status<select id="entry-status"><option value="todo">To do</option><option value="doing">In progress</option><option value="done">Done</option></select></label>
+        </div>
+        <label for="entry-title">Title</label>
+        <input id="entry-title" maxlength="120" required placeholder="Check staging migration" />
+        <label for="entry-note">Handoff note</label>
+        <textarea id="entry-note" maxlength="2000" rows="4" placeholder="What the next person or browser needs to know"></textarea>
+        <div id="link-fields" hidden>
+          <label for="entry-url">URL</label>
+          <input id="entry-url" type="url" maxlength="2000" placeholder="https://…" />
+          <label for="link-kind">Bookmark type<select id="link-kind"><option value="terminal">Terminal</option><option value="pull-request">Pull request</option><option value="test">Test run</option><option value="docs">Docs</option><option value="other">Other</option></select></label>
+        </div>
+        <div class="dialog-actions"><button class="secondary" type="button" data-close>Cancel</button><button class="primary" type="submit">Seal entry</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="transfer-dialog" class="wide-dialog">
+      <form method="dialog" class="dialog-form" id="transfer-form">
+        <div><p class="eyebrow">Portable by design</p><h2>Transfer this journal</h2></div>
+        <section class="transfer-section">
+          <h3>Encrypted handoff</h3>
+          <p>Export an AES-GCM JSON handoff, then import it in another browser with the same passphrase.</p>
+          <div class="button-row"><button id="export-button" class="primary" type="button">Export encrypted JSON</button><label class="file-button secondary" for="import-file">Import handoff<input id="import-file" type="file" accept="application/json,.json" /></label></div>
+          <button id="markdown-button" class="text-button" type="button">Export current workspace as readable Markdown (not encrypted)</button>
+        </section>
+        <section class="transfer-section">
+          <div class="section-title-row"><div><h3>Workspace sidecar</h3><p>Move the encrypted vault through the same remote workspace, with no cloud account.</p></div><span id="sidecar-state" class="pill"><span aria-hidden="true">●</span> Not checked</span></div>
+          <label for="sidecar-url">Local sidecar address</label>
+          <input id="sidecar-url" type="url" value="http://127.0.0.1:43821" />
+          <div class="button-row"><button id="sidecar-push" class="secondary" type="button">Push encrypted vault</button><button id="sidecar-pull" class="secondary" type="button">Pull &amp; merge vault</button></div>
+          <details><summary>Start the sidecar</summary><code>npm run sidecar -- --root /path/to/workspace</code><p class="muted">It listens only on 127.0.0.1 and writes <code>.workspace-history-porter/handoff.json</code>.</p></details>
+        </section>
+        <p id="transfer-status" class="status" role="status" aria-live="polite"></p>
+        <div class="dialog-actions"><button class="secondary" type="button" data-close>Done</button></div>
+      </form>
+    </dialog>
+  </body>
+</html>
