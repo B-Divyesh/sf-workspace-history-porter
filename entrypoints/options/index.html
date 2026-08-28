@@ -121,10 +121,16 @@
           <button id="markdown-button" class="text-button" type="button">Export current workspace as readable Markdown (not encrypted)</button>
         </section>
         <section class="transfer-section">
-          <div class="section-title-row"><div><h3>Workspace sidecar</h3><p>Move the encrypted vault through the same remote workspace, with no cloud account.</p></div><span id="sidecar-state" class="pill"><span aria-hidden="true">●</span> Not checked</span></div>
+          <div class="section-title-row"><div><h3>Workspace sidecar <span class="paid-tag">Team</span></h3><p>Move the encrypted vault through the same remote workspace, with no cloud account. $29 one-time.</p></div><span id="sidecar-state" class="pill"><span aria-hidden="true">●</span> License needed</span></div>
+          <div id="license-controls" class="license-controls">
+            <a class="secondary purchase-link" href="https://workspace-history-porter.sociobot.in/#team" target="_blank" rel="noreferrer">Buy Team Relay</a>
+            <label for="extension-license">Have a license? Paste it</label>
+            <div class="license-row"><input id="extension-license" autocomplete="off" spellcheck="false" placeholder="License token" /><button id="verify-license" class="secondary" type="button">Verify &amp; unlock</button></div>
+            <p id="extension-license-status" class="muted" role="status" aria-live="polite"></p>
+          </div>
           <label for="sidecar-url">Local sidecar address</label>
           <input id="sidecar-url" type="url" value="http://127.0.0.1:43821" />
-          <div class="button-row"><button id="sidecar-push" class="secondary" type="button">Push encrypted vault</button><button id="sidecar-pull" class="secondary" type="button">Pull &amp; merge vault</button></div>
+          <div class="button-row"><button id="sidecar-push" class="secondary" type="button" disabled>Push encrypted vault</button><button id="sidecar-pull" class="secondary" type="button" disabled>Pull &amp; merge vault</button></div>
           <details><summary>Start the sidecar</summary><code>npm run sidecar -- --root /path/to/workspace</code><p class="muted">It listens only on 127.0.0.1 and writes <code>.workspace-history-porter/handoff.json</code>.</p></details>
         </section>
         <p id="transfer-status" class="status" role="status" aria-live="polite"></p>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Carry an encrypted workspace task index, handoff notes, and useful links between browsers—without exporting chat transcripts." />
+    <meta name="theme-color" content="#07110f" />
+    <title>Workspace History Porter — carry the useful context</title>
+    <link rel="icon" href="/porter-mark.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="/neon-route-hero-720.webp" media="(max-width: 720px)" />
+    <script type="module" src="/main.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <a class="site-brand" href="/" aria-label="Workspace History Porter home"><img src="/porter-mark.svg" width="42" height="42" alt="" /><span>Workspace<br />History Porter</span></a>
+      <nav aria-label="Main navigation"><a href="#route">How it works</a><a href="#privacy">Privacy</a><a href="#team">Team</a><a class="nav-cta" href="/downloads/workspace-history-porter-chrome.zip" download>Download v1</a></nav>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="route-kicker"><span>01</span> Browser to browser</p>
+          <h1>Carry the useful context. Leave the transcript behind.</h1>
+          <p class="hero-lede">An encrypted, workspace-scoped index for the tasks, handoff notes, terminal links, PRs, and test runs that need to survive your next browser.</p>
+          <div class="hero-actions"><a class="button primary" href="/downloads/workspace-history-porter-chrome.zip" download>Download Chrome extension</a><a class="button secondary" href="#route">See the 60-second handoff</a></div>
+          <p class="install-note"><span aria-hidden="true">●</span> Free · offline · no account · Chromium MV3</p>
+        </div>
+        <figure class="hero-visual">
+          <picture>
+            <source media="(max-width: 720px)" srcset="/neon-route-hero-720.webp" />
+            <img src="/neon-route-hero.webp" width="1200" height="800" alt="An encrypted paper handoff ticket crossing between two dark browser-window kiosks along a cyan route" fetchpriority="high" decoding="async" />
+          </picture>
+          <figcaption>One encrypted handoff. Two browser stations.</figcaption>
+        </figure>
+        <div class="route-line" aria-hidden="true"><span></span></div>
+      </section>
+
+      <section class="signal-strip" aria-label="Product guarantees">
+        <p><strong>AES-256-GCM</strong><span>encrypted at rest</span></p>
+        <p><strong>0 transcripts</strong><span>page content untouched</span></p>
+        <p><strong>1 minute</strong><span>target recovery time</span></p>
+        <p><strong>Open JSON</strong><span>portable handoff envelope</span></p>
+      </section>
+
+      <section id="route" class="route-section">
+        <header class="section-intro"><p class="route-kicker"><span>02</span> The route</p><h2>Three stops. No cloud account.</h2><p>Keep the operational index around the work—not another proprietary copy of the conversation.</p></header>
+        <ol class="route-steps">
+          <li><span class="step-number">01</span><div class="step-art"><span class="tiny-window"></span><span class="route-dot"></span></div><h3>Pack what matters</h3><p>Add the next task, a concise handoff note, or the current terminal, PR, test, or docs URL. Page content is never read.</p></li>
+          <li><span class="step-number">02</span><div class="step-art ticket-art"><span></span></div><h3>Seal it locally</h3><p>Your passphrase derives an AES key in the browser. The journal stored on disk is ciphertext; the key is not persisted.</p></li>
+          <li><span class="step-number">03</span><div class="step-art"><span class="tiny-window second"></span><span class="route-dot arrival"></span></div><h3>Open the next stop</h3><p>Import the encrypted JSON or pull it from the optional workspace sidecar. Merge newer entries without losing local work.</p></li>
+        </ol>
+      </section>
+
+      <section id="privacy" class="privacy-section">
+        <div class="privacy-copy"><p class="route-kicker"><span>03</span> What stays behind</p><h2>A small index, deliberately.</h2><p>Porter is not a chat exporter, browser-history scraper, or hosted IDE. It stores only the notes and links you explicitly add.</p><a href="/privacy/">Read the privacy policy <span aria-hidden="true">↗</span></a></div>
+        <div class="ledger" aria-label="Data handling summary">
+          <div><span class="ledger-mark yes" aria-hidden="true">✓</span><p><strong>Task titles and notes</strong><small>Only when you type them</small></p><span class="ledger-state">Encrypted</span></div>
+          <div><span class="ledger-mark yes" aria-hidden="true">✓</span><p><strong>URLs you bookmark</strong><small>Only after origin permission</small></p><span class="ledger-state">Encrypted</span></div>
+          <div><span class="ledger-mark no" aria-hidden="true">×</span><p><strong>Page content and transcripts</strong><small>Never collected</small></p><span class="ledger-state">Absent</span></div>
+          <div><span class="ledger-mark no" aria-hidden="true">×</span><p><strong>Encryption passphrase</strong><small>Held for the browser session</small></p><span class="ledger-state">Not sent</span></div>
+        </div>
+      </section>
+
+      <section class="formats-section">
+        <header class="section-intro"><p class="route-kicker"><span>04</span> Honest portability</p><h2>Take the exit whenever you want.</h2></header>
+        <div class="format-grid">
+          <article><span class="format-label">.JSON</span><h3>Encrypted handoff</h3><p>Versioned, documented AES-GCM envelope for carrying a full vault safely.</p></article>
+          <article><span class="format-label">.MD</span><h3>Readable handoff</h3><p>Export one workspace as Markdown—with an explicit warning that it is plaintext.</p></article>
+          <article><span class="format-label">127.0.0.1</span><h3>Local sidecar</h3><p>A zero-dependency Node bridge that writes only ciphertext inside your chosen workspace.</p><a href="/downloads/porter-sidecar.mjs" download>Download sidecar <span aria-hidden="true">↓</span></a></article>
+        </div>
+      </section>
+
+      <section id="team" class="team-section">
+        <div class="team-card">
+          <div><p class="route-kicker"><span>05</span> Team relay</p><h2>Pass the baton through a shared workspace.</h2><p>Unlock sidecar push/pull for a team using the same remote workspace. The sidecar sees ciphertext only; your team controls the passphrase.</p><ul><li>Unlimited encrypted sidecar handoffs</li><li>One license, movable between your browsers</li><li>Free encrypted JSON and Markdown export remain free</li></ul></div>
+          <div class="price-ticket">
+            <span class="ticket-code">TEAM / ONE-TIME</span><p class="price"><strong>$29</strong><span>one-time purchase</span></p>
+            <a id="buy-link" class="button primary full" href="https://pilot-api.sociobot.in/api/v1/products/workspace-history-porter/checkout">Buy Team Relay</a>
+            <p class="merchant-note">Secure hosted checkout. Sociobot/Dodo is merchant of record; refunds revoke the license.</p>
+            <details id="restore-panel"><summary>Have a license? Restore it</summary><form id="license-form"><label for="license-token">License token</label><input id="license-token" autocomplete="off" spellcheck="false" /><button class="button secondary full" type="submit" aria-label="Verify license token">Verify license</button></form></details>
+            <p id="license-status" class="license-status" role="status" aria-live="polite"></p>
+            <p class="legal-links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-callout"><img src="/porter-mark.svg" width="72" height="72" alt="" /><h2>Your workspace already moved. Bring the signs.</h2><a class="button primary" href="/downloads/workspace-history-porter-chrome.zip" download>Download Workspace History Porter</a></section>
+    </main>
+
+    <footer><div><a class="site-brand" href="/"><img src="/porter-mark.svg" width="36" height="36" alt="" /><span>Workspace History Porter</span></a><p>Built for people whose workspace outlives their browser.</p></div><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-workspace-history-porter" rel="noreferrer">Source</a></nav><p class="provenance">Original hero imagery created with an AI image model; art direction and review by Param Factory.</p></footer>
+  </body>
+</html>

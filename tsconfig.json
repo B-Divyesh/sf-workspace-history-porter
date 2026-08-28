@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node", "vite/client"]
   },
   "include": ["entrypoints", "lib", "site", "tests", "wxt.config.ts", "vite.site.config.ts"]
 }

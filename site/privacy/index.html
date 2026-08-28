@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Privacy policy for Workspace History Porter." />
+    <title>Privacy — Workspace History Porter</title>
+    <link rel="icon" href="/porter-mark.svg" type="image/svg+xml" />
+    <script type="module" src="/legal.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="legal-header"><a class="site-brand" href="/"><img src="/porter-mark.svg" width="42" height="42" alt="" /><span>Workspace<br />History Porter</span></a></header>
+    <main id="main" class="legal-main">
+      <p class="route-kicker"><span>P</span> Policy</p>
+      <h1>Privacy, by route.</h1>
+      <p class="effective">Effective August 28, 2026</p>
+      <p class="summary">Porter is local-first. We do not receive your journal, bookmarked URLs, handoff files, or encryption passphrase.</p>
+
+      <h2>What the extension stores</h2>
+      <p>The extension stores an encrypted vault in your browser’s extension storage. The vault contains only workspace names, task titles, notes, status values, and URLs that you explicitly add. Encryption uses AES-256-GCM with a key derived from your passphrase using PBKDF2-SHA-256. Your passphrase is held in browser session storage so it disappears when the browser session ends.</p>
+
+      <h2>Browser permissions</h2>
+      <p>Porter uses extension storage, the active tab, and optional per-origin permissions. It asks for an origin only when you choose “Use this tab.” It reads the URL you chose; it does not read page content, model transcripts, keystrokes, or browsing history.</p>
+
+      <h2>Exports and sidecar</h2>
+      <p>Encrypted JSON exports are created on your device. Readable Markdown exports are deliberately unencrypted and display a warning before creation. The optional sidecar listens only on <code>127.0.0.1</code> and writes the encrypted envelope beneath the workspace directory you choose. It rejects requests from ordinary web origins.</p>
+
+      <h2>Licenses and payments</h2>
+      <p>If you buy or restore Team Relay, your browser stores the license token locally and sends it to the Sociobot billing API for verification at most once per day. Sociobot/Dodo is the merchant of record and processes checkout and refunds. We do not embed card fields or receive card details. Their service may process the network information needed to prevent fraud and complete a transaction.</p>
+
+      <h2>Website data</h2>
+      <p>This site includes no analytics, advertising pixels, third-party fonts, or social trackers. Static hosting may retain short-lived security and access logs such as IP address, request path, and user agent.</p>
+
+      <h2>Deletion and control</h2>
+      <p>Remove the extension to delete its local browser storage, and delete exported files wherever you saved them. To remove a sidecar copy, delete <code>.workspace-history-porter/handoff.json</code> from that workspace. A refunded purchase automatically revokes its license.</p>
+
+      <h2>Contact</h2>
+      <p>For privacy questions or deletion help, open an issue in the <a href="https://github.com/B-Divyesh/sf-workspace-history-porter">project repository</a>. Because journals never reach us, we cannot recover or delete a journal on your behalf.</p>
+    </main>
+    <footer><a href="/">← Back to Porter</a><nav aria-label="Legal navigation"><a href="/terms/">Terms</a></nav></footer>
+  </body>
+</html>

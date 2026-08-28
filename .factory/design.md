@@ -35,8 +35,8 @@ All body pairings exceed WCAG AA. Statuses combine color with text and icons.
 
 ## Type and spacing
 
-Headings use the self-hosted `Bricolage Grotesque` subset when available, with
-Arial fallback. Utility text and data use the system monospace stack, which
+Headings use a condensed system grotesque (`Arial Narrow`, with Arial fallback)
+so the extension ships no font payload. Utility text and data use the system monospace stack, which
 makes workspace IDs, dates, and file formats scan like shipping labels. The
 scale is 16 / 18 / 22 / 32 / 52 px with 1.5 body leading. Spacing follows a
 4 px base: 4, 8, 12, 16, 24, 32, 48, 72. Reading measures stop at 68ch.

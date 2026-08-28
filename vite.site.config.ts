@@ -8,6 +8,7 @@ export default defineConfig({
     outDir: '../dist/site',
     emptyOutDir: true,
     target: 'es2022',
+    modulePreload: { polyfill: false },
     cssCodeSplit: true,
     rollupOptions: {
       input: {
