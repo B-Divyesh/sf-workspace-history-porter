@@ -48,10 +48,12 @@ npm run dev          # WXT extension development
 npm run dev:site     # static site development
 npm test             # unit + sidecar integration tests
 npm run test:e2e     # Chromium desktop/mobile + Axe
+npm run test:package # build and verify the deployable artifacts
 npm run build        # exact production build
 ```
 
-The exact production command is `npm run build`. It creates:
+Both `npm run build:site` (the static deployment build) and the exact
+production command `npm run build` create:
 
 - `dist/site/index.html` — static deployment root
 - `dist/site/downloads/workspace-history-porter-chrome.zip`
@@ -71,8 +73,8 @@ npm run sidecar -- --root /absolute/path/to/workspace
 
 The sidecar listens only at `http://127.0.0.1:43821`. It atomically writes the
 encrypted envelope to
-`<workspace>/.workspace-history-porter/handoff.json`, accepts requests only
-from browser-extension origins, and never receives the passphrase or plaintext
+`<workspace>/.workspace-history-porter/handoff.json`, requires a
+browser-extension origin for every journal read or write, and never receives the passphrase or plaintext
 journal. Use `--port 45000` to choose another unprivileged port.
 
 ## Handoff format and security boundary

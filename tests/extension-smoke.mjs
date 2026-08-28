@@ -7,6 +7,24 @@ const userDataDir = await mkdtemp(join(tmpdir(), 'porter-extension-'));
 const extensionPath = resolve('.output/chrome-mv3');
 let context;
 
+async function openOptionsAfterInstall(page, optionsUrl) {
+  let lastError;
+  // Chromium may still be honoring runtime.openOptionsPage() from onInstalled
+  // when this fresh-profile smoke test opens its own tab. Let that internal
+  // chrome://extensions/?options= navigation settle, then load the real shell.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.goto(optionsUrl, { waitUntil: 'domcontentloaded' });
+      if (page.url().startsWith(optionsUrl)) return;
+    } catch (error) {
+      lastError = error;
+    }
+    await page.waitForLoadState('domcontentloaded', { timeout: 2_000 }).catch(() => {});
+    await page.waitForTimeout(100);
+  }
+  throw lastError || new Error(`Could not open extension options at ${optionsUrl}.`);
+}
+
 try {
   context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chromium',
@@ -20,7 +38,7 @@ try {
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
 
-  await page.goto(`chrome-extension://${extensionId}/options.html`);
+  await openOptionsAfterInstall(page, `chrome-extension://${extensionId}/options.html`);
   if (await page.locator('h1').count() !== 1 || await page.locator('main').count() !== 1) throw new Error('Extension shell is missing semantic landmarks.');
   await page.fill('#passphrase', 'test passphrase 123');
   await page.click('#unlock-form button[type=submit]');

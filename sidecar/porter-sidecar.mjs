@@ -23,9 +23,13 @@ const handoffPath = join(dataDir, 'handoff.json');
 const temporaryPath = join(dataDir, 'handoff.tmp');
 const allowedOrigin = /^(chrome|moz)-extension:\/\/[a-z0-9-]+$/i;
 
+function hasExtensionOrigin(request) {
+  return typeof request.headers.origin === 'string' && allowedOrigin.test(request.headers.origin);
+}
+
 function setCors(request, response) {
   const origin = request.headers.origin;
-  if (origin && allowedOrigin.test(origin)) {
+  if (hasExtensionOrigin(request)) {
     response.setHeader('Access-Control-Allow-Origin', origin);
     response.setHeader('Vary', 'Origin');
     response.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
@@ -55,8 +59,11 @@ await mkdir(dataDir, { recursive: true, mode: 0o700 });
 
 const server = createServer(async (request, response) => {
   setCors(request, response);
-  const origin = request.headers.origin;
-  if (origin && !allowedOrigin.test(origin)) return json(response, 403, { error: 'Only browser extensions may use this sidecar.' });
+  // CORS is not authorization: another local process can omit Origin.
+  // Journal reads and writes must identify an extension origin themselves.
+  if (request.url === '/journal' && !hasExtensionOrigin(request)) {
+    return json(response, 403, { error: 'Only browser extensions may use this sidecar.' });
+  }
   if (request.method === 'OPTIONS') {
     response.writeHead(204);
     return response.end();

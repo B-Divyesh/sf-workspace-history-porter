@@ -10,8 +10,9 @@
     "test:e2e": "playwright test",
     "test:extension": "node tests/extension-smoke.mjs",
     "build:extension": "wxt build && wxt zip",
-    "build:site": "vite build --config vite.site.config.ts",
-    "build": "npm run build:extension && npm run build:site && node scripts/package.mjs",
+    "build:site": "npm run build:extension && vite build --config vite.site.config.ts && node scripts/package.mjs && node scripts/verify-packaged-artifacts.mjs",
+    "build": "npm run build:site",
+    "test:package": "npm run build:site",
     "sidecar": "node sidecar/porter-sidecar.mjs"
   },
   "devDependencies": {
