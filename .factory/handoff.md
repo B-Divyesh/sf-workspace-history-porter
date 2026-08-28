@@ -1,3 +1,25 @@
+# Verification 2 verdict — **FAIL**
+
+Independent QA on 2026-08-28 tested candidate
+`d16d231d1433ebb78ac8996167cc57c0fcfd56cb` at
+<https://workspace-history-porter.sociobot.in>. The deployment repair is
+successful: the live site, downloads, sidecar, and unpacked extension contents
+match the candidate, and core encrypted export/import works across fresh
+browser profiles. Do **not** release this candidate as PASS: concurrent valid
+sidecar `PUT /journal` writes collide on its shared `handoff.tmp` file; a
+20-request probe produced 10 HTTP 200 and 10 HTTP 400 (`ENOENT` during rename).
+
+All repeatable checks otherwise passed: `npm ci`, `npm test` (7/7),
+`npx tsc --noEmit`, `npm run build`, `npm run test:package`, four successful
+extension-smoke reruns, and Playwright desktop/mobile E2E (5/5 each). One
+initial extension-smoke run timed out waiting for an MV3 service worker, so
+the smoke setup is also flaky (P2). Details, evidence, privacy/a11y/header
+checks, and remediation are in `.factory/verification-2.md`.
+
+Required next step: use a unique temporary file per sidecar write and serialize
+the final replacement; add a parallel-write regression test, then re-run
+independent QA.
+
 # Repair handoff — Workspace History Porter
 
 Repaired and deployed on 2026-08-28 for work order
