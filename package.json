@@ -8,6 +8,7 @@
     "dev:site": "vite --config vite.site.config.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:extension": "node tests/extension-smoke.mjs",
     "build:extension": "wxt build && wxt zip",
     "build:site": "vite build --config vite.site.config.ts",
     "build": "npm run build:extension && npm run build:site && node scripts/package.mjs",

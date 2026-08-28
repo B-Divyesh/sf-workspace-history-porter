@@ -1,5 +1,10 @@
 node_modules/
 dist/
+.output/
+.wxt/
+test-results/
+playwright-report/
+.factory/evidence/
 .env
 *.log
 graphify-out/
