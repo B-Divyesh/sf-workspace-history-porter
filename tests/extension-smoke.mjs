@@ -4,6 +4,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+// @claim:extension-journal @claim:browser-transfer @claim:passphrase-session @claim:markdown-warning @claim:link-followup
+
 const userDataDir = await mkdtemp(join(tmpdir(), 'porter-extension-'));
 const extensionPath = resolve('.output/chrome-mv3');
 let context;
@@ -95,9 +97,39 @@ try {
   await page.waitForSelector('.journal-card');
   const entry = await page.locator('.journal-card h3').textContent();
   if (entry !== 'Run integration tests') throw new Error('Journal entry was not saved and rendered.');
+  const stored = await page.evaluate(async () => ({
+    local: await chrome.storage.local.get(null),
+    session: await chrome.storage.session.get(null)
+  }));
+  if (JSON.stringify(stored.local).includes('Run integration tests') || JSON.stringify(stored.local).includes('test passphrase 123')) {
+    throw new Error('Persistent extension storage exposed journal plaintext or the passphrase.');
+  }
+  if (!JSON.stringify(stored.session).includes('test passphrase 123')) {
+    throw new Error('The unlocked session did not retain the passphrase in session storage.');
+  }
 
   await page.selectOption('.status-select', 'done');
   await page.waitForFunction(() => document.querySelector('#workspace-summary')?.textContent?.startsWith('0 open · 1 total'));
+
+  await page.click('#add-entry-button');
+  await page.selectOption('#entry-kind', 'link');
+  await page.fill('#entry-title', 'Open pull request');
+  await page.fill('#entry-url', 'https://github.com/example/remote-api/pull/42');
+  await page.press('#entry-url', 'Enter');
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 2);
+
+  await page.click('#add-entry-button');
+  const entryFormState = await page.evaluate(() => ({
+    kind: document.querySelector('#entry-kind').value,
+    linkFieldsHidden: document.querySelector('#link-fields').hidden,
+    urlRequired: document.querySelector('#entry-url').required
+  }));
+  if (entryFormState.kind !== 'task' || !entryFormState.linkFieldsHidden || entryFormState.urlRequired) {
+    throw new Error(`Link to Task reset left an invalid form state: ${JSON.stringify(entryFormState)}`);
+  }
+  await page.fill('#entry-title', 'Follow up after link');
+  await page.press('#entry-title', 'Enter');
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 3);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const transferButton = page.locator('#transfer-button');
@@ -106,6 +138,15 @@ try {
   if (!transferBox || transferBox.height < 44) throw new Error(`Mobile transfer target is below 44 px: ${JSON.stringify(transferBox)}`);
   await transferButton.click();
   await page.waitForSelector('#transfer-dialog[open]');
+
+  let markdownWarning = '';
+  page.once('dialog', async (dialog) => {
+    markdownWarning = dialog.message();
+    await dialog.dismiss();
+  });
+  await page.click('#markdown-button');
+  await page.waitForTimeout(50);
+  if (!markdownWarning.includes('not encrypted')) throw new Error('Readable Markdown export did not warn that it is unencrypted.');
 
   const downloadPromise = page.waitForEvent('download');
   await page.click('#export-button');
@@ -117,21 +158,22 @@ try {
   await page.click('#add-entry-button');
   await page.fill('#entry-title', 'Temporary local task');
   await page.press('#entry-title', 'Enter');
-  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 2);
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 4);
 
   await transferButton.click();
   page.once('dialog', (dialog) => dialog.accept('REPLACE'));
   await page.setInputFiles('#import-file', handoffPath);
-  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 1);
-  if (await page.locator('.journal-card h3').textContent() !== 'Run integration tests') {
-    throw new Error('Mobile encrypted export/import did not restore the exported journal.');
+  await page.waitForFunction(() => document.querySelectorAll('.journal-card').length === 3);
+  const titles = await page.locator('.journal-card h3').allTextContents();
+  if (!titles.includes('Run integration tests') || !titles.includes('Open pull request') || !titles.includes('Follow up after link')) {
+    throw new Error(`Mobile encrypted export/import did not restore the exported journal: ${JSON.stringify(titles)}`);
   }
   if (!await page.locator('#transfer-status').textContent().then((value) => value?.includes('1 workspace imported'))) {
     throw new Error('Mobile encrypted import did not report its result.');
   }
   await assertNoSeriousA11yViolations(page, 'Unlocked');
   if (errors.length) throw new Error(`Extension console errors: ${errors.join('; ')}`);
-  process.stdout.write('Extension smoke passed: journal, live status summary, and 390 px encrypted export/import; no console errors.\n');
+  process.stdout.write('Extension smoke passed: local encrypted journal, Link to Task reset, Markdown warning, live status summary, and 390 px encrypted export/import; no console errors.\n');
 } finally {
   await context?.close();
   await rm(userDataDir, { recursive: true, force: true });

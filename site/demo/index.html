@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Try a filled Workspace History Porter journal with sample remote-workspace tasks, notes, and links." />
+    <meta name="theme-color" content="#07110f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Workspace History Porter" />
+    <meta property="og:title" content="Demo — Workspace History Porter" />
+    <meta property="og:description" content="Try a filled sample journal before installing the browser extension." />
+    <meta property="og:image" content="https://workspace-history-porter.sociobot.in/porter-social.webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Demo — Workspace History Porter" />
+    <meta name="twitter:description" content="Try a filled sample journal before installing the browser extension." />
+    <meta name="twitter:image" content="https://workspace-history-porter.sociobot.in/porter-social.webp" />
+    <link rel="canonical" href="https://workspace-history-porter.sociobot.in/demo/" />
+    <title>Demo — Workspace History Porter</title>
+    <link rel="icon" href="/porter-mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon/180.png" />
+    <script type="module" src="/demo.ts"></script>
+  </head>
+  <body class="demo-page">
+    <a class="skip-link" href="#main">Skip to sample journal</a>
+    <header class="site-header">
+      <a class="site-brand" href="/" aria-label="Workspace History Porter home"><img src="/porter-mark.svg" width="42" height="42" alt="" /><span>Workspace<br />History Porter</span></a>
+      <nav aria-label="Main navigation"><a href="/demo/" aria-current="page">Demo</a><a href="/#how-it-works">How it works</a><a href="/privacy/">Privacy</a><a class="nav-cta" href="/downloads/workspace-history-porter-chrome.zip" download>Download</a></nav>
+    </header>
+    <aside class="demo-banner" aria-label="Demo status"><strong>Demo — sample data, nothing is saved to your real journal.</strong><span>Use the sample safely, then reset it.</span><button id="reset-demo" type="button">Reset demo</button><a href="/" id="start-real">Start for real</a></aside>
+    <main id="main" class="demo-main">
+      <header class="demo-heading"><p class="route-kicker"><span>D</span> Sample journal</p><h1>Review a remote workspace handoff</h1><p>This sample shows the tasks, notes, and links someone needs after opening the same workspace in another browser.</p></header>
+      <section class="demo-journal" aria-labelledby="sample-workspace">
+        <aside class="demo-rail" aria-label="Sample workspaces"><p class="eyebrow">Workspaces</p><button class="demo-workspace active" type="button" aria-current="page"><strong>Remote API</strong><span>3 entries</span></button><button class="demo-workspace" type="button" disabled><strong>Docs migration</strong><span>Sample only</span></button><p class="demo-rail-note">This page uses a separate demo storage key.</p></aside>
+        <section class="demo-content">
+          <header class="demo-workspace-header"><div><p class="eyebrow">https://dev.example.test/remote-api</p><h2 id="sample-workspace">Remote API</h2><p id="demo-summary" class="muted"></p></div><span class="demo-pill">Sample data</span></header>
+          <ol id="demo-entries" class="demo-entries" aria-label="Sample journal entries"></ol>
+          <form id="demo-add-form" class="demo-add-form"><label for="demo-task">Add a sample task</label><div><input id="demo-task" maxlength="120" required placeholder="Check the staging migration" /><button class="button primary" type="submit">Add task</button></div><p id="demo-status" role="status" aria-live="polite"></p></form>
+        </section>
+      </section>
+      <section class="demo-next"><h2>Ready to use your own journal?</h2><p>Download the extension, create a passphrase, and add the next task for your workspace.</p><a class="button primary" href="/downloads/workspace-history-porter-chrome.zip" download>Download the extension</a></section>
+    </main>
+    <footer><div><a class="site-brand" href="/"><img src="/porter-mark.svg" width="36" height="36" alt="" /><span>Workspace History Porter</span></a><p>Portable task, note, and link journal for remote workspaces.</p></div><nav aria-label="Footer navigation"><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-workspace-history-porter" rel="noreferrer">Source</a></nav><p class="provenance">Built by Param Factory · version 1.0.2 · Original hero imagery created with an AI image model.</p></footer>
+  </body>
+</html>

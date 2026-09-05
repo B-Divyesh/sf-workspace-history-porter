@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 
-const SIDECAR_VERSION = '1.0.1';
+const SIDECAR_VERSION = '1.0.2';
 const BUILD_COMMIT = 'development';
 
 const args = process.argv.slice(2);
@@ -59,6 +59,17 @@ function readBody(request) {
   });
 }
 
+function encryptedEnvelope(body) {
+  if (body?.format !== 'workspace-history-porter/handoff' || body?.version !== 1 || typeof body?.ciphertext !== 'string') return null;
+  return {
+    format: 'workspace-history-porter/handoff',
+    version: 1,
+    encryption: body.encryption && typeof body.encryption === 'object' ? body.encryption : {},
+    ciphertext: body.ciphertext,
+    exportedAt: typeof body.exportedAt === 'string' ? body.exportedAt : ''
+  };
+}
+
 await mkdir(dataDir, { recursive: true, mode: 0o700 });
 
 const server = createServer(async (request, response) => {
@@ -96,8 +107,8 @@ const server = createServer(async (request, response) => {
   if (request.method === 'PUT') {
     let temporaryPath;
     try {
-      const body = JSON.parse(await readBody(request));
-      if (body?.format !== 'workspace-history-porter/handoff' || body?.version !== 1 || typeof body?.ciphertext !== 'string') {
+      const body = encryptedEnvelope(JSON.parse(await readBody(request)));
+      if (!body) {
         return json(response, 400, { error: 'Expected an encrypted Porter handoff.' });
       }
       temporaryPath = join(dataDir, `handoff.${process.pid}.${randomUUID()}.tmp`);

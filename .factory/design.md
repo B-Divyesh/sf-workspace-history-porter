@@ -67,6 +67,8 @@ transitions are near-instant, and no animation loops.
 - `assets/src/neon-route-hero.png`: generated original source, retained with
   prompt sidecar.
 - `public/neon-route-hero.webp`: optimized landing hero, ≤300 KB.
+- `public/porter-social.webp`: a 1200×630 center crop derived from the original hero for social previews; no new third-party material.
+- `public/icon/180.png`: a 180 px product icon resized from the repository’s original Porter icon for Apple touch devices.
 
 ### Hero prompt sheet
 

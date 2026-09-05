@@ -1,6 +1,6 @@
 {
   "name": "workspace-history-porter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,6 +10,9 @@
     "lint": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test:extension": "node tests/extension-smoke.mjs",
+    "test:claim:link-followup": "npm run build:extension && node tests/extension-smoke.mjs --claim @claim:link-followup",
+    "test:claim:extension": "npm run build:extension && node tests/extension-smoke.mjs",
+    "test:claim:manifest": "npm run build:extension && node tests/manifest-claim.mjs",
     "build:extension": "wxt build && wxt zip",
     "build:site": "npm run build:extension && vite build --config vite.site.config.ts && node scripts/package.mjs && node scripts/verify-packaged-artifacts.mjs",
     "build": "npm run build:site",

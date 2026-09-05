@@ -1,103 +1,59 @@
 # Workspace History Porter
 
-Workspace History Porter carries the small operational index around a remote
-workspace—tasks, handoff notes, terminal/PR/test links—between browsers without
-making chat transcripts a portability layer.
+Move workspace tasks, notes, and useful links to another browser with an encrypted local journal.
 
-It is built for developers and teams who open the same remote workspace from a
-new browser and otherwise lose the browser-local index that tells them what to
-do next.
+It is for people who reopen a remote development workspace in a different browser and need to know what to do next.
 
-## What ships
+Try the filled sandbox at [the demo route](https://workspace-history-porter.sociobot.in/demo/). It uses separate sample data and can be reset at any time.
 
-- A WXT + TypeScript Manifest V3 extension with a quick-add popup and full
-  workspace journal.
-- AES-256-GCM encryption at rest. The user’s passphrase derives the key with
-  PBKDF2-SHA-256 (310,000 iterations) and is retained only for the browser
-  session.
-- Explicit current-tab URL capture with optional per-origin permission. Porter
-  never reads page content or model transcripts.
-- Encrypted, versioned JSON export/import with merge or replace; readable
-  Markdown export remains available with a plaintext warning.
-- A zero-dependency Node sidecar that binds to `127.0.0.1` and moves ciphertext
-  through a chosen remote workspace.
-- A static product site, privacy policy, terms, packaged Chrome zip, and
-  Sociobot license restore/verification for the optional Team Relay feature.
+## What it includes
+
+- A Chromium MV3 extension for an encrypted workspace journal.
+- Tasks, handoff notes, and links that you add yourself.
+- Encrypted JSON export and import for moving a journal between browsers.
+- An optional loopback-only Node sidecar for an encrypted handoff file in a workspace.
 
 ## Install the extension
 
-For a packaged build, unzip
-`dist/site/downloads/workspace-history-porter-chrome.zip`, open
-`chrome://extensions`, enable Developer mode, choose **Load unpacked**, and
-select the unzipped folder.
+Download `dist/site/downloads/workspace-history-porter-chrome.zip`, unzip it, open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the unzipped folder.
 
-Click the Porter icon, enter a new passphrase of at least 10 characters, then
-add a task or explicitly attach the current tab URL. Use **Open full journal**
-for workspace management and transfers.
+Open the Porter icon, choose a passphrase with at least 10 characters, and create a workspace. Add a task, note, or link. Open **Transfer & sidecar** to export encrypted JSON or use a local sidecar.
 
-There is no password recovery because the password is never sent anywhere.
-Keep an encrypted export before clearing browser data.
-
-## Local development
+## Run locally
 
 Requirements: Node.js 20+ and npm.
 
 ```sh
 npm ci
-npm run dev          # WXT extension development
-npm run dev:site     # static site development
-npm test             # unit + sidecar integration tests
-npm run test:e2e     # Chromium desktop/mobile + Axe
-npm run test:package # build and verify the deployable artifacts
-npm run build        # exact production build
+npm run build
+npm test
+npm run lint
+npm run test:extension
+npm run test:e2e
 ```
 
-Both `npm run build:site` (the static deployment build) and the exact
-production command `npm run build` create:
+`npm run build` creates the MV3 extension, the Chrome ZIP, the packaged sidecar, and the static product site in `dist/site/`.
 
-- `dist/site/index.html` — static deployment root
-- `dist/site/downloads/workspace-history-porter-chrome.zip`
-- `dist/site/downloads/porter-sidecar.mjs`
-- `.output/chrome-mv3/` — unpacked extension
+Run each documented public-claim command after `npm ci` with:
 
-The factory deploys `dist/site`; this repository does not modify DNS or
-infrastructure.
+```sh
+node -e "for (const claim of require('./.factory/claims.json')) console.log(claim.test)"
+```
+
+Then run each printed command. The browser claim commands start their own static preview. The link-followup claim command builds the extension before opening it in a clean Chromium profile.
 
 ## Run the sidecar
-
-Team Relay is the optional paid feature; encrypted file export remains free.
 
 ```sh
 npm run sidecar -- --root /absolute/path/to/workspace
 ```
 
-The sidecar listens only at `http://127.0.0.1:43821`. It atomically writes the
-encrypted envelope to
-`<workspace>/.workspace-history-porter/handoff.json`, requires a
-browser-extension origin for every journal read or write, and never receives the passphrase or plaintext
-journal. Use `--port 45000` to choose another unprivileged port.
+The sidecar listens on `http://127.0.0.1:43821`. It accepts journal requests from browser-extension origins, stores an encrypted envelope at `<workspace>/.workspace-history-porter/handoff.json`, and does not receive the passphrase.
 
-## Handoff format and security boundary
+## Deploy
 
-The encrypted JSON format identifies itself as
-`workspace-history-porter/handoff`, version 1. Its encryption metadata includes
-the random salt, random 96-bit IV, PBKDF2 iteration count, and algorithm; only
-the ciphertext contains journal data.
+The factory deploys `dist/site/` to `https://workspace-history-porter.sociobot.in`. This repository does not change DNS, hosting, or billing configuration.
 
-This protects data at rest and in a shared workspace when the passphrase is
-strong and exchanged separately. It does not protect an unlocked browser from
-malware, a compromised extension runtime, or someone who knows the passphrase.
+## Product notes
 
-## Paid unlock
-
-Team Relay is a $29 one-time license sold through the production Sociobot
-billing engine. License verdicts are cached for at most one day and a prior
-valid verdict keeps the feature available offline. Free journal use and all
-data exports never wait on billing.
-
-## Project notes
-
-The visual thesis and generated-asset provenance are in
-[`.factory/design.md`](.factory/design.md). Build verification and known gaps
-are in [`.factory/handoff.md`](.factory/handoff.md). Licensed under the
-[MIT License](LICENSE).
+The demo contract is in [`.factory/demo.md`](.factory/demo.md). The tested public claims are in [`.factory/claims.json`](.factory/claims.json). The visual system and asset provenance are in [`.factory/design.md`](.factory/design.md). Licensed under the [MIT License](LICENSE).

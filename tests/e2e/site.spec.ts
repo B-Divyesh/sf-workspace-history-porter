@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-for (const path of ['/', '/privacy/', '/terms/']) {
+for (const path of ['/', '/demo/', '/privacy/', '/terms/', '/404.html']) {
   test(`${path} has a clean accessible shell`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator('main')).toBeVisible();
@@ -13,28 +13,15 @@ for (const path of ['/', '/privacy/', '/terms/']) {
   });
 }
 
-test('license callback is stored and stripped without blocking the page', async ({ page }) => {
-  await page.route('https://api.sociobot.in/**', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{"valid":true,"reason":"ok","expires_at":null}' }));
-  await page.goto('/?license=test-license#team');
-  await expect(page).toHaveURL(/\/#team$/);
-  expect(await page.evaluate(() => localStorage.getItem('sb_license:workspace-history-porter'))).toBe('test-license');
-  await expect(page.locator('#license-status')).toContainText('active');
-});
-
-test('checkout uses only the production Sociobot billing endpoint', async ({ page }) => {
-  await page.goto('/#team');
-  await expect(page.locator('#buy-link')).toHaveAttribute(
-    'href',
-    'https://api.sociobot.in/api/v1/products/workspace-history-porter/checkout'
-  );
-});
-
-test('packaged extension and sidecar are downloadable', async ({ request }) => {
-  const extension = await request.get('/downloads/workspace-history-porter-chrome.zip');
-  const sidecar = await request.get('/downloads/porter-sidecar.mjs');
-  expect(extension.ok()).toBe(true);
-  expect(sidecar.ok()).toBe(true);
-  expect((await extension.body()).byteLength).toBeGreaterThan(50_000);
+test('every public route provides canonical and social metadata', async ({ page }) => {
+  for (const path of ['/', '/demo/', '/privacy/', '/terms/', '/404.html']) {
+    await page.goto(path);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /porter-social\.webp$/);
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/icon/180.png');
+  }
 });
 
 test('390 px product links meet the 44 px touch-target baseline', async ({ page }, testInfo) => {

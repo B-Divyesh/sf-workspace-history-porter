@@ -11,7 +11,6 @@ import {
   saveVault,
   setSessionPassphrase
 } from '../../lib/extension-store';
-import { cachedLicenseVerdict, saveLicense, verifySavedLicense } from '../../lib/extension-license';
 import {
   makeId,
   type EntryKind,
@@ -40,7 +39,6 @@ let passphrase = '';
 let selectedId = '';
 let filter: 'all' | EntryKind = 'all';
 let statusTimer = 0;
-let teamUnlocked = false;
 
 function selectedWorkspace(): Workspace | undefined {
   return vault?.workspaces.find((workspace) => workspace.id === selectedId);
@@ -245,16 +243,27 @@ document.querySelector<HTMLFormElement>('#workspace-form')!.addEventListener('su
   form.reset();
 });
 
+const entryForm = document.querySelector<HTMLFormElement>('#entry-form')!;
 const kindInput = document.querySelector<HTMLSelectElement>('#entry-kind')!;
 const linkFields = document.querySelector<HTMLElement>('#link-fields')!;
-kindInput.addEventListener('change', () => {
-  linkFields.hidden = kindInput.value !== 'link';
-  document.querySelector<HTMLInputElement>('#entry-url')!.required = kindInput.value === 'link';
-});
+const entryUrl = document.querySelector<HTMLInputElement>('#entry-url')!;
 
-document.querySelector<HTMLFormElement>('#entry-form')!.addEventListener('submit', async (event) => {
+function syncEntryKind() {
+  const isLink = kindInput.value === 'link';
+  linkFields.hidden = !isLink;
+  entryUrl.required = isLink;
+}
+
+function resetEntryForm() {
+  entryForm.reset();
+  syncEntryKind();
+}
+
+kindInput.addEventListener('change', syncEntryKind);
+entryDialog.addEventListener('close', resetEntryForm);
+
+entryForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const form = event.currentTarget as HTMLFormElement;
   const workspace = selectedWorkspace();
   if (!workspace) return;
   const now = new Date().toISOString();
@@ -274,8 +283,6 @@ document.querySelector<HTMLFormElement>('#entry-form')!.addEventListener('submit
   await persist('Sealed locally.');
   render();
   entryDialog.close();
-  form.reset();
-  linkFields.hidden = true;
 });
 
 document.querySelectorAll<HTMLButtonElement>('.filter').forEach((button) => button.addEventListener('click', () => {
@@ -340,34 +347,7 @@ function sidecarState(message: string, online: boolean) {
   pill.querySelector('span')!.style.color = online ? 'var(--mint)' : 'var(--seal)';
 }
 
-function renderLicense(valid: boolean, message: string) {
-  teamUnlocked = valid;
-  document.querySelector<HTMLButtonElement>('#sidecar-push')!.disabled = !valid;
-  document.querySelector<HTMLButtonElement>('#sidecar-pull')!.disabled = !valid;
-  const output = document.querySelector<HTMLElement>('#extension-license-status')!;
-  output.textContent = message;
-  output.style.color = valid ? 'var(--mint)' : 'var(--muted)';
-  sidecarState(valid ? 'Team unlocked' : 'License needed', valid);
-}
-
-async function refreshLicense(force = false) {
-  const cached = await cachedLicenseVerdict();
-  if (cached?.valid) renderLicense(true, 'Team Relay available from the last successful check.');
-  const verdict = await verifySavedLicense(force);
-  if (!verdict) return renderLicense(false, 'Paste a license token to unlock the sidecar.');
-  renderLicense(verdict.valid, verdict.valid ? 'Team Relay license active.' : 'License no longer active. Restore another token or buy Team Relay.');
-}
-
-document.querySelector('#verify-license')!.addEventListener('click', async () => {
-  const token = document.querySelector<HTMLInputElement>('#extension-license')!.value.trim();
-  if (!token) return renderLicense(false, 'Paste the license token from your receipt.');
-  await saveLicense(token);
-  renderLicense(false, 'Checking license…');
-  await refreshLicense(true);
-});
-
 document.querySelector('#sidecar-push')!.addEventListener('click', async () => {
-  if (!teamUnlocked) return;
   const target = document.querySelector<HTMLElement>('#transfer-status')!;
   try {
     const envelope = await readEncryptedVault();
@@ -383,7 +363,6 @@ document.querySelector('#sidecar-push')!.addEventListener('click', async () => {
 });
 
 document.querySelector('#sidecar-pull')!.addEventListener('click', async () => {
-  if (!teamUnlocked) return;
   const target = document.querySelector<HTMLElement>('#transfer-status')!;
   try {
     const response = await fetch(`${sidecarBase()}/journal`);
@@ -404,7 +383,7 @@ document.querySelector('#sidecar-pull')!.addEventListener('click', async () => {
 });
 
 async function init() {
-  void refreshLicense();
+  sidecarState('Start the sidecar to transfer', false);
   const session = await getSessionPassphrase();
   if (!session) {
     passphraseInput.focus();

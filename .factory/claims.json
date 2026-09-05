@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-sample-journal",
+    "claim": "The sample opens a filled remote-workspace journal.",
+    "where": "Landing first screen, /demo, README",
+    "test": "npm run test:e2e -- --project=chromium --grep @claim:demo-sample-journal",
+    "sandbox": "Fresh browser context opens /demo and checks the persistent demo label plus three realistic entries."
+  },
+  {
+    "id": "demo-isolation",
+    "claim": "Demo changes and reset affect only separate sample data.",
+    "where": "Landing first screen, /demo, privacy policy, README",
+    "test": "npm run test:e2e -- --project=chromium --grep @claim:demo-isolation",
+    "sandbox": "Fresh browser context writes a real-data fixture, changes demo data, resets, and proves the fixture remains unchanged."
+  },
+  {
+    "id": "site-local-requests",
+    "claim": "Product pages do not load third-party resources.",
+    "where": "Privacy policy",
+    "test": "npm run test:e2e -- --project=chromium --grep @claim:site-local-requests",
+    "sandbox": "Fresh browser context records requests while loading every product route and accepts only the product origin."
+  },
+  {
+    "id": "encrypted-handoff",
+    "claim": "Encrypted handoffs do not expose journal plaintext and can be opened with the same passphrase.",
+    "where": "Landing, privacy policy, README",
+    "test": "npm test -- --testNamePattern @claim:encrypted-handoff",
+    "sandbox": "A sample journal is encrypted, its serialized envelope is checked for plaintext, then it is decrypted with the same passphrase."
+  },
+  {
+    "id": "sidecar-boundary",
+    "claim": "The local sidecar accepts handoff envelopes only from browser-extension origins and does not store an added passphrase field.",
+    "where": "Landing, privacy policy, README",
+    "test": "npm test -- --testNamePattern @claim:sidecar-boundary",
+    "sandbox": "A temporary workspace runs the real sidecar; allowed extension requests succeed, ordinary and origin-less requests are rejected, and a supplied passphrase field is absent from the saved file."
+  },
+  {
+    "id": "download-artifacts",
+    "claim": "The extension and sidecar downloads are available from the product site.",
+    "where": "Landing, README",
+    "test": "npm run test:e2e -- --project=chromium --grep @claim:download-artifacts",
+    "sandbox": "The static preview returns a non-trivial Chrome extension ZIP and the real sidecar script."
+  },
+  {
+    "id": "link-followup",
+    "claim": "Adding a link does not block the next task entry.",
+    "where": "Extension regression coverage",
+    "test": "npm run test:claim:link-followup",
+    "sandbox": "A fresh installed extension adds a link, opens the reset task form, saves the task, and records no console errors."
+  },
+  {
+    "id": "extension-journal",
+    "claim": "The extension saves tasks and links in an encrypted local journal.",
+    "where": "Landing, README",
+    "test": "npm run test:claim:extension -- --claim @claim:extension-journal",
+    "sandbox": "A fresh installed extension creates a workspace, saves a task and link, and verifies persistent storage contains neither plaintext nor the passphrase."
+  },
+  {
+    "id": "browser-transfer",
+    "claim": "Encrypted JSON export can be imported in another browser state.",
+    "where": "Landing, README",
+    "test": "npm run test:claim:extension -- --claim @claim:browser-transfer",
+    "sandbox": "At 390 px the installed extension exports the journal, creates divergent data, replaces it from the encrypted file, and verifies the saved entries return."
+  },
+  {
+    "id": "passphrase-session",
+    "claim": "The passphrase is kept in browser session storage, not persistent storage.",
+    "where": "Privacy policy, README",
+    "test": "npm run test:claim:extension -- --claim @claim:passphrase-session",
+    "sandbox": "The installed extension inspects browser storage after a real save and verifies the passphrase appears only in session storage."
+  },
+  {
+    "id": "markdown-warning",
+    "claim": "Readable Markdown export warns that it is not encrypted.",
+    "where": "Privacy policy",
+    "test": "npm run test:claim:extension -- --claim @claim:markdown-warning",
+    "sandbox": "The installed extension requests a Markdown export and asserts the confirmation dialog says it is not encrypted."
+  },
+  {
+    "id": "no-page-content-script",
+    "claim": "The packaged extension does not install a page content script.",
+    "where": "Privacy policy",
+    "test": "npm run test:claim:manifest -- --claim @claim:no-page-content-script",
+    "sandbox": "The real production MV3 manifest is built and checked for an absent content_scripts declaration."
+  }
+]

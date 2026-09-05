@@ -18,8 +18,8 @@ const [{ stdout: expectedCommit }, sourceSidecar, packagedSidecar] = await Promi
 const expectedSidecar = sourceSidecar.replace("const BUILD_COMMIT = 'development';", `const BUILD_COMMIT = '${expectedCommit.trim()}';`);
 if (packagedSidecar !== expectedSidecar) throw new Error('Packaged sidecar does not match the stamped source artifact.');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-if (!manifest.host_permissions?.includes('https://api.sociobot.in/*') || manifest.host_permissions.includes('https://pilot-api.sociobot.in/*')) {
-  throw new Error('Packaged extension must use only the production Sociobot billing origin.');
+if (!manifest.host_permissions?.includes('http://127.0.0.1:43821/*') || manifest.host_permissions.some((origin) => /sociobot|pilot-api/.test(origin))) {
+  throw new Error('Packaged extension must expose only the loopback sidecar host permission.');
 }
 await execFileAsync('unzip', ['-t', extension]);
 process.stdout.write(`Verified deploy tree: index, Chrome zip, and sidecar identity ${expectedCommit.trim()} are present and valid.\n`);

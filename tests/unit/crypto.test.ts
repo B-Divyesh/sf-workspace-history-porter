@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { decryptPayload, encryptPayload, isEncryptedEnvelope } from '../../lib/crypto';
 
 describe('encrypted handoff envelope', () => {
-  it('round trips a journal without exposing plaintext', async () => {
+  it('@claim:encrypted-handoff round trips a journal without exposing plaintext', async () => {
     const payload = { workspaces: [{ name: 'Secret staging task' }] };
     const envelope = await encryptPayload(payload, 'a useful long passphrase', 1_000);
     expect(isEncryptedEnvelope(envelope)).toBe(true);
